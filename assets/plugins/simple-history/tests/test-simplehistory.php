@@ -97,8 +97,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		$settings_tabs = $sh->getSettingsTabs();
 		$arr_default_settings = array(
 			"settings",
-			"export",
-            "debug"
+			"export"
 		);
 
 		$loaded_settings_slugs = wp_list_pluck( $settings_tabs, "slug" );
@@ -276,7 +275,7 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 		$this->assertArrayHasKey( "description", $info );
 		$this->assertArrayHasKey( "capability", $info );
 		$this->assertArrayHasKey( "messages", $info );
-
+		
 		$this->assertTrue( is_array( $info["messages"] ) );
 		$this->assertTrue( is_array( $info["labels"] ) );
 		$this->assertTrue( is_array( $info["labels"]["search"] ) );
@@ -286,3 +285,4 @@ class SimpleHistoryTest extends WP_UnitTestCase {
 
 
 }
+

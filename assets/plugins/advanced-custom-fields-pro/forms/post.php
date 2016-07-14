@@ -225,7 +225,6 @@ class acf_form_post {
 		
 		// remove ACF from meta postbox
 		add_filter('is_protected_meta', array($this, 'is_protected_meta'), 10, 3);
-		
 	}
 	
 	
@@ -382,11 +381,16 @@ if( typeof acf !== 'undefined' ) {
 		
 		// vars
 		$json = array();
+		$nonce = acf_extract_var( $options, 'nonce' );
 		$exists = acf_extract_var( $options, 'exists' );
 		
 		
 		// verify nonce
-		if( !acf_verify_ajax() ) die();
+		if( !wp_verify_nonce($nonce, 'acf_nonce') ) {
+		
+			die;
+			
+		}
 		
 		
 		// get field groups

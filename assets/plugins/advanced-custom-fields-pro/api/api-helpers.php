@@ -1739,17 +1739,14 @@ function _acf_orderby_post_type( $ordeby, $wp_query ) {
 }
 
 
-function acf_get_post_title( $post = 0, $is_search = false ) {
+function acf_get_post_title( $post = 0 ) {
 	
-	// vars
-	$post = get_post($post);
-	$title = '';
-	$prepend = '';
-	$append = '';
-	
-    
-	// bail early if no post
-	if( !$post ) return '';
+	// load post if given an ID
+	if( is_numeric($post) ) {
+		
+		$post = get_post($post);
+		
+	}
 	
 	
 	// title
@@ -1765,20 +1762,11 @@ function acf_get_post_title( $post = 0, $is_search = false ) {
 	
 	
 	// ancestors
-	if( $post->post_type !== 'attachment' ) {
+	if( $post->post_type != 'attachment' ) {
 		
-		// get ancestors
 		$ancestors = get_ancestors( $post->ID, $post->post_type );
-		$parent_id = acf_maybe_get( $ancestors, 0 );
-		$prepend = str_repeat('- ', count($ancestors));
 		
-		
-		// add parent
-		if( $is_search && $parent_id ) {
-			
-			$append .= ' (Parent page: ' . get_the_title( $parent_id ) . ')';
-			
-		}
+		$title = str_repeat('- ', count($ancestors)) . $title;
 		
 	}
 	
@@ -1786,90 +1774,15 @@ function acf_get_post_title( $post = 0, $is_search = false ) {
 	// status
 	if( get_post_status( $post->ID ) != "publish" ) {
 		
-		$append .= ' (' . get_post_status( $post->ID ) . ')';
+		$title .= ' (' . get_post_status( $post->ID ) . ')';
 		
 	}
-	
-	
-	// merge
-	$title = $prepend . $title . $append;
 	
 	
 	// return
 	return $title;
 	
 }
-
-
-/*
-function acf_get_post_title( $post = 0, $is_search = false ) {
-	
-	// vars
-	$post = get_post($post);
-	$title = '';
-	$prepend = '';
-	$append = '';
-	
-    
-	// bail early if no post
-	if( !$post ) return '';
-	
-	
-	// title
-	$title = get_the_title( $post->ID );
-	
-	
-	// empty
-	if( $title === '' ) {
-		
-		$title = __('(no title)', 'acf');
-		
-	}
-	
-	
-	// ancestors
-	if( $post->post_type !== 'attachment' ) {
-		
-		// get ancestors
-		$ancestors = get_ancestors( $post->ID, $post->post_type );
-		$parent_id = acf_maybe_get( $ancestors, 0 );
-		
-		
-		// add parent
-		if( $is_search && !empty($ancestors) ) {
-			
-			foreach( $ancestors as $post_id ) {
-				
-				$prepend = get_the_title( $post_id ) . ' / ' . $prepend;
-				
-			}
-			
-		} else {
-			
-			$prepend = str_repeat('- ', count($ancestors));
-			
-		}	
-				
-	}
-	
-	
-	// status
-	if( get_post_status( $post->ID ) != "publish" ) {
-		
-		$append .= ' (' . get_post_status( $post->ID ) . ')';
-		
-	}
-	
-	
-	// merge
-	$title = $prepend . $title . $append;
-	
-	
-	// return
-	return $title;
-	
-}
-*/
 
 
 function acf_order_by_search( $array, $search ) {
@@ -2532,69 +2445,18 @@ function acf_decode_choices( $string = '', $array_keys = false ) {
 }
 
 
-/*
-*  acf_str_replace
-*
-*  This function will replace an array of strings much like str_replace
-*  The difference is the extra logic to avoid replacing a string that has alread been replaced
-*  This is very useful for replacing date characters as they overlap with eachother
-*
-*  @type	function
-*  @date	21/06/2016
-*  @since	5.3.8
-*
-*  @param	$post_id (int)
-*  @return	$post_id (int)
-*/
-
-function acf_str_replace( $string, $search_replace ) {
-	
-	// vars
-	$ignore = array();
-	
-	
-	// remove potential empty search to avoid PHP error
-	unset($search_replace['']);
-	
-		
-	// loop over conversions
-	foreach( $search_replace as $search => $replace ) {
-		
-		// ignore this search, it was a previous replace
-		if( in_array($search, $ignore) ) continue;
-		
-		
-		// bail early if subsctring not found
-		if( strpos($string, $search) === false ) continue;
-		
-		
-		// replace
-		$string = str_replace($search, $replace, $string);
-		
-		
-		// append to ignore
-		$ignore[] = $replace;
-		
-	}
-	
-	
-	// return
-	return $string;
-	
-}
-
 
 /*
-*  date & time formats
+*  acf_convert_date_to_php
 *
-*  These settings contain an association of format strings from PHP => JS
+*  This fucntion converts a date format string from JS to PHP
 *
 *  @type	function
-*  @date	21/06/2016
-*  @since	5.3.8
+*  @date	20/06/2014
+*  @since	5.0.0
 *
-*  @param	n/a
-*  @return	n/a
+*  @param	$date (string)
+*  @return	$date (string)
 */
 
 acf_update_setting('php_to_js_date_formats', array(
@@ -2620,45 +2482,41 @@ acf_update_setting('php_to_js_date_formats', array(
 	'd'	=> 'dd',	// Numeric, with leading zeros						01–31
 	'j'	=> 'd',		// Numeric, without leading zeros 					1–31
 	'S'	=> '',		// The English suffix for the day of the month  	st, nd or th in the 1st, 2nd or 15th. 
-	
+
 ));
 
-acf_update_setting('php_to_js_time_formats', array(
-	
-	'a' => 'tt',	// Lowercase Ante meridiem and Post meridiem 		am or pm
-	'A' => 'TT',	// Uppercase Ante meridiem and Post meridiem 		AM or PM
-	'h' => 'hh',	// 12-hour format of an hour with leading zeros 	01 through 12
-	'g' => 'h',		// 12-hour format of an hour without leading zeros 	1 through 12
-	'H' => 'HH',	// 24-hour format of an hour with leading zeros 	00 through 23
-	'G' => 'H',		// 24-hour format of an hour without leading zeros 	0 through 23
-	'i' => 'mm',	// Minutes with leading zeros 						00 to 59
-	's' => 'ss',	// Seconds, with leading zeros 						00 through 59
-	
-));
-
-
-/*
-*  acf_convert_date_to_php
-*
-*  This fucntion converts a date format string from JS to PHP
-*
-*  @type	function
-*  @date	20/06/2014
-*  @since	5.0.0
-*
-*  @param	$date (string)
-*  @return	(string)
-*/
-
-function acf_convert_date_to_php( $date = '' ) {
+function acf_convert_date_to_php( $date ) {
 	
 	// vars
+	$ignore = array();
+	
+	
+	// conversion
 	$php_to_js = acf_get_setting('php_to_js_date_formats');
-	$js_to_php = array_flip($php_to_js);
+	
+	
+	// loop over conversions
+	foreach( $php_to_js as $replace => $search ) {
 		
+		// ignore this replace?
+		if( in_array($search, $ignore) ) {
+			
+			continue;
+			
+		}
+		
+		
+		// replace
+		$date = str_replace($search, $replace, $date);
+		
+		
+		// append to ignore
+		$ignore[] = $replace;
+	}
+	
 	
 	// return
-	return acf_str_replace( $date, $js_to_php );
+	return $date;
 	
 }
 
@@ -2671,69 +2529,42 @@ function acf_convert_date_to_php( $date = '' ) {
 *  @date	20/06/2014
 *  @since	5.0.0
 *
-*  @param	$date (string)
-*  @return	(string)
+*  @param	$post_id (int)
+*  @return	$post_id (int)
 */
 
-function acf_convert_date_to_js( $date = '' ) {
+function acf_convert_date_to_js( $date ) {
 	
 	// vars
+	$ignore = array();
+	
+	
+	// conversion
 	$php_to_js = acf_get_setting('php_to_js_date_formats');
+	
+	
+	// loop over conversions
+	foreach( $php_to_js as $search => $replace ) {
 		
+		// ignore this replace?
+		if( in_array($search, $ignore) ) {
+			
+			continue;
+			
+		}
+		
+		
+		// replace
+		$date = str_replace($search, $replace, $date);
+		
+		
+		// append to ignore
+		$ignore[] = $replace;
+	}
+	
 	
 	// return
-	return acf_str_replace( $date, $php_to_js );
-	
-}
-
-
-/*
-*  acf_convert_time_to_php
-*
-*  This fucntion converts a time format string from JS to PHP
-*
-*  @type	function
-*  @date	20/06/2014
-*  @since	5.0.0
-*
-*  @param	$time (string)
-*  @return	(string)
-*/
-
-function acf_convert_time_to_php( $time = '' ) {
-	
-	// vars
-	$php_to_js = acf_get_setting('php_to_js_time_formats');
-	$js_to_php = array_flip($php_to_js);
-		
-	
-	// return
-	return acf_str_replace( $time, $js_to_php );
-	
-}
-
-
-/*
-*  acf_convert_time_to_js
-*
-*  This fucntion converts a date format string from PHP to JS
-*
-*  @type	function
-*  @date	20/06/2014
-*  @since	5.0.0
-*
-*  @param	$time (string)
-*  @return	(string)
-*/
-
-function acf_convert_time_to_js( $time = '' ) {
-	
-	// vars
-	$php_to_js = acf_get_setting('php_to_js_time_formats');
-		
-	
-	// return
-	return acf_str_replace( $time, $php_to_js );
+	return $date;
 	
 }
 
@@ -2843,10 +2674,14 @@ function acf_get_user_setting( $name = '', $default = false ) {
 *  @return	$post_id (int)
 */
 
-function acf_in_array( $value = '', $array = false ) {
+function acf_in_array( $value, $array ) {
 	
 	// bail early if not array
-	if( !is_array($array) ) return false;
+	if( !is_array($array) ) {
+		
+		return false;
+		
+	}
 	
 	
 	// find value in array
@@ -4136,115 +3971,17 @@ function acf_get_post_thumbnail( $post = null, $size = 'thumbnail' ) {
 
 
 /*
-*  acf_get_browser
+*  Hacks
 *
-*  This functino will return the browser string for major browsers
+*  description
 *
 *  @type	function
 *  @date	17/01/2014
 *  @since	5.0.0
 *
-*  @param	n/a
-*  @return	(string)
+*  @param	$post_id (int)
+*  @return	$post_id (int)
 */
-
-function acf_get_browser() {
-	
-	// vars
-	$agent = $_SERVER['HTTP_USER_AGENT'];
-	
-	
-	// browsers
-	$browsers = array(
-		'Firefox'	=> 'firefox',
-		'Trident'	=> 'msie',
-		'MSIE'		=> 'msie',
-		'Edge'		=> 'edge',
-		'Chrome'	=> 'chrome',
-		'Safari'	=> 'safari',
-	);
-	
-	
-	// loop
-	foreach( $browsers as $k => $v ) {
-		
-		if( strpos($agent, $k) !== false ) return $v;
-		
-	}
-	
-	
-	// return
-	return '';
-	
-}
-
-
-/*
-*  acf_is_ajax
-*
-*  This function will reutrn true if performing a wp ajax call
-*
-*  @type	function
-*  @date	7/06/2016
-*  @since	5.3.8
-*
-*  @param	n/a
-*  @return	(boolean)
-*/
-
-function acf_is_ajax() {
-	
-	return ( defined('DOING_AJAX') && DOING_AJAX );
-		
-}
-
-
-
-
-/*
-*  acf_format_date
-*
-*  This function will accept a date value and return it in a formatted string
-*
-*  @type	function
-*  @date	16/06/2016
-*  @since	5.3.8
-*
-*  @param	$value (string)
-*  @return	$format (string)
-*/
-
-function acf_format_date( $value, $format ) {
-
-	// bail early if no value
-	if( empty($value) ) return $value;
-	
-	
-	// attempt strtotime for standard date value
-	$unixtimestamp = strtotime($value);
-	
-	
-	// allow for timestamp value
-	if( !$unixtimestamp && is_numeric($value) ) {
-		
-		$unixtimestamp = $value;
-			
-	}
-	
-	
-	// bail early if timestamp error
-	if( !$unixtimestamp ) return $value;
-	
-	
-	// translate
-	$value = date_i18n($format, $unixtimestamp);
-	
-	
-	// return
-	return $value;
-	
-}
-
 
 add_filter("acf/settings/slug", '_acf_settings_slug');
 

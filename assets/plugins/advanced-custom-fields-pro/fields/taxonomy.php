@@ -48,15 +48,10 @@ class acf_field_taxonomy extends acf_field {
 		);
 		
 		
-		// ajax
+		// extra
 		add_action('wp_ajax_acf/fields/taxonomy/query',			array($this, 'ajax_query'));
 		add_action('wp_ajax_nopriv_acf/fields/taxonomy/query',	array($this, 'ajax_query'));
 		add_action('wp_ajax_acf/fields/taxonomy/add_term',		array($this, 'ajax_add_term'));
-		
-		
-		// custom set_terms
-		$this->save_post_terms = array();
-		add_action('acf/save_post', array($this, 'save_post'), 15, 1);
 		
 		
 		// do not delete!
@@ -421,7 +416,7 @@ class acf_field_taxonomy extends acf_field {
 			$term_ids = array_map('intval', $term_ids);
 			
 			
-			// if called directly from frontend update_field()
+			// bypass $this->set_terms if called directly from update_field
 			if( !did_action('acf/save_post') ) {
 				
 				wp_set_object_terms( $post_id, $term_ids, $taxonomy, false );
@@ -431,12 +426,27 @@ class acf_field_taxonomy extends acf_field {
 			}
 			
 			
-			// get existing term id's (from a previously saved field)
-			$old_term_ids = isset($this->save_post_terms[ $taxonomy ]) ? $this->save_post_terms[ $taxonomy ] : array();
+			// initialize
+			if( empty($this->set_terms) ) {
+				
+				// create holder
+				$this->set_terms = array();
+				
+				
+				// add action
+				add_action('acf/save_post', array($this, 'set_terms'), 15, 1);
+				
+			}
 			
 			
 			// append
-			$this->save_post_terms[ $taxonomy ] = array_merge($old_term_ids, $term_ids);
+			if( empty($this->set_terms[ $taxonomy ]) ) {
+				
+				$this->set_terms[ $taxonomy ] = array();
+				
+			}
+			
+			$this->set_terms[ $taxonomy ] = array_merge($this->set_terms[ $taxonomy ], $term_ids);
 			
 		}
 		
@@ -448,36 +458,38 @@ class acf_field_taxonomy extends acf_field {
 	
 	
 	/*
-	*  save_post
+	*  set_terms
 	*
-	*  This function will save any terms in the save_post_terms array
+	*  description
 	*
 	*  @type	function
 	*  @date	26/11/2014
 	*  @since	5.0.9
 	*
 	*  @param	$post_id (int)
-	*  @return	n/a
+	*  @return	$post_id (int)
 	*/
 	
-	function save_post( $post_id ) {
+	function set_terms( $post_id ) {
 		
 		// bail ealry if no terms
-		if( empty($this->save_post_terms) ) return;
-		
+		if( empty($this->set_terms) ) {
+			
+			return;
+			
+		}
 		
 		
 		// loop over terms
-		foreach( $this->save_post_terms as $taxonomy => $term_ids ){
+		foreach( $this->set_terms as $taxonomy => $term_ids ){
 			
 			wp_set_object_terms( $post_id, $term_ids, $taxonomy, false );
-			
 			
 		}
 		
 		
 		// reset array ( WP saves twice )
-		$this->save_post_terms = array();
+		$this->set_terms = array();
 		
 	}
 	

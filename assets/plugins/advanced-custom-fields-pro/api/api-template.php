@@ -361,16 +361,7 @@ function get_field_objects( $post_id = false, $format_value = true, $load_value 
 
 function have_rows( $selector, $post_id = false ) {
 	
-	// reference
-	$_post_id = $post_id;
-	
-	
-	// filter post_id
-	$post_id = acf_get_valid_post_id( $post_id );
-	
-	
 	// vars
-	$key = "selector={$selector}/post_id={$post_id}";
 	$active_loop = acf_get_loop('active');
 	$previous_loop = acf_get_loop('previous');
 	$new_parent_loop = false;
@@ -380,14 +371,21 @@ function have_rows( $selector, $post_id = false ) {
 	$change = false;
 	
 	
-	// no active loops
+	// reference
+	$_post_id = $post_id;
+	
+	
+	// filter post_id
+	$post_id = acf_get_valid_post_id( $post_id );
+	
+	
+	// empty?
 	if( !$active_loop ) {
 		
 		// create a new loop
 		$new_parent_loop = true;
 	
-	// loop has changed
-	} elseif( $active_loop['key'] != $key ) {
+	} else {
 		
 		// detect change
 		if( $post_id != $active_loop['post_id'] ) {
@@ -398,19 +396,19 @@ function have_rows( $selector, $post_id = false ) {
 			
 			$change = 'selector';
 				
-		} else {
-			
-			// key has changed due to a technicallity, however, the post_id and selector are the same
-			
 		}
 		
 		
 		// attempt to find sub field
-		$sub_field = acf_get_sub_field($selector, $active_loop['field']);
+		if( $change ) {
 			
-		if( $sub_field ) {
+			$sub_field = acf_get_sub_field($selector, $active_loop['field']);
 			
-			$sub_exists = isset( $active_loop['value'][ $active_loop['i'] ][ $sub_field['key'] ] );
+			if( $sub_field ) {
+				
+				$sub_exists = isset( $active_loop['value'][ $active_loop['i'] ][ $sub_field['key'] ] );
+				
+			}
 			
 		}
 		
@@ -461,11 +459,6 @@ function have_rows( $selector, $post_id = false ) {
 			}
 			
 		}
-	
-	// loop is the same	
-	} else {
-		
-		// do nothing
 		
 	}
 	
@@ -486,7 +479,6 @@ function have_rows( $selector, $post_id = false ) {
 			'field'		=> $field,
 			'i'			=> -1,
 			'post_id'	=> $post_id,
-			'key'		=> $key
 		));
 	
 	// add child loop
@@ -494,7 +486,6 @@ function have_rows( $selector, $post_id = false ) {
 		
 		// vars
 		$value = $active_loop['value'][ $active_loop['i'] ][ $sub_field['key'] ];
-		$post_id = $active_loop['post_id'];
 		
 		
 		// add loop
@@ -505,7 +496,6 @@ function have_rows( $selector, $post_id = false ) {
 			'field'		=> $sub_field,
 			'i'			=> -1,
 			'post_id'	=> $post_id,
-			'key'		=> $key
 		));
 		
 	}	
@@ -576,12 +566,7 @@ function get_row( $format = false ) {
 	
 	
 	// get value
-	$value = acf_maybe_get( $loop['value'], $loop['i'] );
-	
-	
-	// bail early if no current value
-	// possible if get_row_layout() is called before the_row()
-	if( !$value ) return false;
+	$value = $loop['value'][ $loop['i'] ];
 	
 	
 	// format
@@ -614,12 +599,6 @@ function get_row_index() {
 	
 	// return
 	return $i + 1;
-	
-}
-
-function the_row_index() {
-	
-	echo get_row_index();
 	
 }
 

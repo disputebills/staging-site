@@ -17,17 +17,11 @@
 			<div class="footer-block" style="padding: 36px 20px 36px; padding: 2rem 1.33333rem 2.4rem 2rem;">
 				<div class="footer-logo">
 					<p><a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
-						<img class="whiteout" src="http://disputebills.com/assets/themes/disputebills-theme/assets/images/dispute-bills-logo.png" width="200" height="32" alt="Medical Dispute">
+						<img src="http://res.cloudinary.com/candidbusiness/image/upload/v1455406791/dispute-bills-logo-white.png" width="200" height="32" alt="Medical Dispute">
 					</a></p>
 					<p><strong>410 N. May Street Chicago, Illinois 60642 | <a href="tel:1-888-622-2809">(888) 622-2809</a></strong></p>
 					<p class="copyright">©<?php echo date('Y'); ?> Dispute Bills. All Rights Reserved.</p>
 				</div>
-<div class="social">
-<ul class="social-media"><li><a href="http://www.bbb.org/chicago/business-reviews/medical-billing-services/disputebills-com-in-chicago-il-90002872/" alt="Better Business Bureau" style="width: 115px; opacity: .8;"><img src="http://disputebills.com/assets/uploads/2016/05/bbb-horizontal-ab-seal.png" style="width: 115px;"></a></li>
-<li><a href="https://www.facebook.com/disputebills"><i class="fa fa-lg fa-facebook"><span class="sr-only">Facebook</span></i></a></li><li><a href="https://twitter.com/DisputeBills"><i class="fa fa-lg fa-twitter"><span class="sr-only">Twitter</span></i></a></li><li><a href="https://plus.google.com/103378801284776045769"><i class="fa fa-lg fa-google-plus"><span class="sr-only">Google Plus</span></i></a></li><li><a href="https://www.linkedin.com/company/dispute"><i class="fa fa-lg fa-linkedin"><span class="sr-only">Linkedin</span></i></a></li></ul>
-</div>
-
-<?php 			/* 
 				<ul class="social-media">
 					<li><a href="http://www.bbb.org/chicago/business-reviews/medical-billing-services/disputebills-com-in-chicago-il-90002872/" alt="Better Business Bureau" style="width: 115px; opacity: .8;"><img src="http://disputebills.com/assets/uploads/2016/05/bbb-horizontal-ab-seal.png" style="width: 115px;"></a></li>
 					<li><a href="https://www.facebook.com/disputebills"><img width="45" height="45" src="http://res.cloudinary.com/candidbusiness/image/upload/v1456556634/facebook.png" alt='facebook' /></a></li>
@@ -35,10 +29,6 @@
 					<li><a href="https://plus.google.com/103378801284776045769"><img width="45" height="45" src="http://res.cloudinary.com/candidbusiness/image/upload/v1456556634/google-plus.png" alt='google plus' /></a></li>
 					<li><a href="https://www.linkedin.com/company/dispute"><img width="45" height="45" src="http://res.cloudinary.com/candidbusiness/image/upload/v1456556634/linkedin.png" alt='linkedin' /></a></li>
 				</ul>
-				// */
- ?>
-
-
 			</div>			
 		</footer>
 		<?php tha_footer_after(); ?>

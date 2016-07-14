@@ -114,12 +114,16 @@ function acf_pro_get_remote_response( $action = '', $post = array() ) {
 function acf_pro_is_update_available() {
 	
 	// vars
-	$info = acf_get_remote_plugin_info();
+	$info = acf_pro_get_remote_info();
 	$version = acf_get_setting('version');
 	 
 	
 	// return false if no info
-	if( empty($info['version']) ) return false;
+	if( empty($info['version']) ) {
+		
+		return false;
+		
+	}
 	
     
     // return false if the external version is '<=' the current version
