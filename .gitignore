@@ -12,6 +12,7 @@ Thumbs.db
 _wpeprivate
 sucuri-test.php
 last-mod
+/last-mod
 
 # wordpress specific
 wp-config.php
